@@ -1,0 +1,15 @@
+# Wi-Fi credentials stay local (copy wifi_config.example.h)
+wifi_config.h
+
+# Arduino build output
+build/
+
+# PlatformIO: project-local core, build output and generated ESP-IDF files
+.piocore/
+.pio/
+.dummy/
+managed_components/
+sdkconfig.*
+dependencies.lock
+*.log
+CMakeLists.txt
