@@ -1,4 +1,4 @@
-\\\# Makes the F/A-18C draw its RWR into the "F18_RWR" viewport of the monitor setup, where
+# Makes the F/A-18C draw its RWR into the "F18_RWR" viewport of the monitor setup, where
 # receiver/rwr_stream.bat captures it for the board.
 #
 # DCS updates and repairs restore the original file, so run this again after one:
