@@ -250,7 +250,8 @@ the next `.\pio.ps1 run` installs everything again.
 
 - DCS gives export scripts no RWR contacts for the Hornet, so the video route is the only way to get its RWR.
   ([discussion](https://forum.dcs.world/topic/294007-logettwsinfo-returns-nill-while-sensor-export-is-true/))
-- The exported picture has the symbols only. The rings and ticks are drawn by the board, sized from DCS's own ring radii.
+- The exported picture has the symbols only. The rings and ticks are drawn by the board, sized from DCS's own ring radii
+  (set `DRAW_RINGS` to `false` in `F18_RWR.ino` if your display has physical rings over it).
 - Some multiplayer servers may reject modified cockpit files.
 - The Hornet file patch has to be redone after every DCS update or repair.
 

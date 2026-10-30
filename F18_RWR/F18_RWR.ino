@@ -21,6 +21,9 @@ constexpr bool     ROTATE_180     = false;   // true rotates everything drawn by
 constexpr uint8_t  BACKLIGHT      = 50;      // 0..100
 constexpr uint32_t STALE_MS       = 1500;    // no video frame for this long = not live
 constexpr uint32_t VIDEO_MIN_MS   = 60;      // shortest gap between drawn frames; keep it well under the sender's frame interval (83 ms at 12 fps)
+// Draw the cockpit instrument's rings and tick marks over the video, and the bezel on the status screens.
+// false = symbols and status text only, for a display with a physical ring overlay on top of it.
+constexpr bool     DRAW_RINGS     = true;
 
 constexpr int      VIDEO_GAIN     = 4;    // brightness multiplier for the streamed RWR picture (1 = unchanged)
 constexpr int      VIDEO_BLACK    = 7;     // green level (of 63) treated as black before the gain, to hide JPEG noise
@@ -100,7 +103,7 @@ static void drawStatus(bool joining) {
   LCD_waitForSpareFrameBuffer();   // the panel may still be reading fb_back
   gfx.setBuffer(fb_back);
   gfx.fillScreen(BLACK);
-  drawBezel();
+  if (DRAW_RINGS) drawBezel();
 
   if (joining) {
     gfx.textCentered("JOINING WIFI", CX, CY - 50, &FreeSansBold12pt7b, YELLOW);
@@ -242,15 +245,16 @@ static void drawVideoFrame(const uint8_t *data, size_t len) {
   const uint32_t t1 = micros();
   gfx.setBuffer(fb_back);
   const int w = jpeg.getWidth(), h = jpeg.getHeight();
-  face_in_decode = w >= DISP_W && h >= DISP_H;
-  if (!face_in_decode) gfx.fillScreen(BLACK);
+  const bool full = w >= DISP_W && h >= DISP_H;
+  face_in_decode = DRAW_RINGS && full;
+  if (!full) gfx.fillScreen(BLACK);
   const bool ok = jpeg.decode(max(0, (DISP_W - w) / 2), max(0, (DISP_H - h) / 2), VIDEO_LUMA_ONLY ? JPEG_LUMA_ONLY : 0);
   if (!ok && errors++ % 50 == 0) {
     Serial.printf("[video] decode failed, error %d, %dx%d (%u so far)\n", jpeg.getLastError(), w, h, (unsigned)errors);
   }
   jpeg.close();
   if (!ok) return;   // a failed frame leaves the last good one on screen
-  if (!face_in_decode) {   // a smaller frame leaves a border jpegDraw never sees: draw the face the slow way
+  if (DRAW_RINGS && !full) {   // a smaller frame leaves a border jpegDraw never sees: draw the face the slow way
     gfx.setUnderlay(true);
     drawRwrFace();
     gfx.setUnderlay(false);
@@ -293,7 +297,7 @@ void setup() {
   fb_back  = (uint16_t *)fb1;
   fb_spare = (uint16_t *)fb2;
   memset(fb0, 0, DISP_W * DISP_H * 2);
-  buildFaceMask(fb_spare);   // not on screen yet
+  if (DRAW_RINGS) buildFaceMask(fb_spare);   // not on screen yet
   buildGrayTable();
 
   xTaskCreatePinnedToCore(wifiTask, "rwrwifi", 8192, nullptr, 1, nullptr, 0);

@@ -18,6 +18,7 @@ How to build it, set up DCS and use it is in the [project README](../README.md).
 | Constant | Use |
 |---|---|
 | `ROTATE_180` | Off by default. On rotates everything drawn, text and video included, by 180°. |
+| `DRAW_RINGS` | On by default: the board draws the instrument's rings and tick marks over the video. Turn it off if a physical ring overlay sits on top of the display; the board then shows the symbols only, and the status screens show their text without the bezel rings, ticks and cross. |
 | `BACKLIGHT` | Brightness 0–100. |
 | `STALE_MS` | How long without a video frame before the board shows the status screen. |
 | `VIDEO_GAIN`, `VIDEO_BLACK` | Brightness multiplier for the streamed picture (4), and the level below which it counts as black (7), to hide JPEG noise. |
@@ -34,7 +35,7 @@ runs the panel interrupt from internal RAM.
 
 TCP port 7791 takes back-to-back JPEGs (ffmpeg's `mjpeg` output), 480×480 or smaller, centred on the panel.
 The decoder (JPEGDEC) **fails on 4:4:4 JPEGs**, so the sender must use `-pix_fmt yuvj420p -huffman default`.
-Frames larger than 96 KB are skipped. The board draws the cockpit instrument's rings and ticks over the black
+Frames larger than 96 KB are skipped. Unless `DRAW_RINGS` is off, the board draws the cockpit instrument's rings and ticks over the black
 parts of each frame, at the radii DCS uses (0.19, 0.56 and 0.74 of the half-width).
 The serial log (115200 baud) shows the frame count and, every 5 s while the picture is changing, the average
 panel wait and draw time.
